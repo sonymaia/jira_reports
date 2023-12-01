@@ -1,0 +1,72 @@
+<!-- burnup-issueid.html -->
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container my-5">
+
+    <h2>Reports - CrossBorder</h2>
+    <form method="POST" id="searchForm">
+        {% csrf_token %}
+        <!-- Campo "Fluxo" -->
+        <div class="mb-3">
+            <label for="fluxo" class="form-label">Fluxo</label>
+            <select class="form-select" id="fluxo" name="fluxo">
+                {% for value, label in fluxo_choices %}
+                    <option value="{{ value }}" {% if value == fluxo_selected %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <!-- Campo "Agrupado por" -->
+        <div class="mb-3">
+            <label for="agrupado_por" class="form-label">Agrupado por:</label>
+            <select class="form-select" id="agrupado_por" name="agrupado_por">
+                {% for value, label in agrupado_por_choices %}
+                    <option value="{{ value }}" {% if value == agrupado_por_selected %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <!-- Botão "Gerar" -->
+        <button type="submit" class="btn btn-primary" name="submit_button" id="searchButton">Gerar</button>
+
+        <button type="submit" class="btn btn-success" name="submit_button" id="updateButton"
+            value="update" data-toggle="tooltip" data-placement="top" title="Salvar" style="margin-left: 10px;">
+            <i class="bi bi-database-fill-down"></i>  Atualizar Dados
+        </button>
+        
+    </form>
+    {% include 'partials/_alerts.html' %}
+
+
+    <div id="loading-spinner" class="d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    {% if user_dict %}
+    {% include 'partials/_report-info.html' %}
+    {% endif %}
+
+</div>
+
+<script>
+    document.getElementById('searchForm').addEventListener('submit', function () {
+        document.getElementById('searchButton').disabled = true;
+        document.getElementById('updateButton').style.display = 'none'
+        document.getElementById('loading-spinner').classList.remove('d-none');
+    });
+
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+
+</script>
+
+{% endblock %}
