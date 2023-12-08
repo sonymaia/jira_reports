@@ -18,7 +18,8 @@
                     {% for ini in user_data %}
                         <tr style="background-color:rgb(253, 253, 207)" >
                             <td></td> 
-                            <td><strong>{{ ini.keyIni }}</strong></td>
+                            <td><strong><a href="{{jira_url}}/browse/{{ ini.keyIni }}"
+                                target="_blank">{{ini.keyIni}}</a></strong></td>
                             <td><strong>{{ ini.fieldsIni.summary }}</strong></td>
                             <td><strong>{{ ini.fieldsIni.status.name }}</strong></td>
                         </tr>
@@ -26,7 +27,8 @@
                         {% for iniepic in ini.epics %}
                             <tr>
                                 <td></td>
-                                <td style="padding-left: 20px;">{{ iniepic.key }}</td>
+                                <td style="padding-left: 20px;"><a href="{{jira_url}}/browse/{{ iniepic.key }}"
+                                    target="_blank">{{iniepic.key}}</a></td>
                                 <td>{{ iniepic.fields.summary }}</td>
                                 <td>{{ iniepic.fields.status.name }}</td>
                             </tr>

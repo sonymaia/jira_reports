@@ -13,8 +13,6 @@ GROUP_TEAM = 'team'
 def report(request, flow, grouper, data_update = True):
     try:
 
-        
-
         # Tente obter dados da sessão
         resultJQL = request.session.get('resultJQL')
 

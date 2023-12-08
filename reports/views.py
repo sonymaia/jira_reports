@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from reports.main import report
 from django.contrib import messages
+from users.models import Config
 
 import json
 from reports.models import FluxoChoice, AgrupadoPorChoice
@@ -37,12 +38,16 @@ def reports(request, loogbook=None):
             messages.error(request, user_dict)
             context = {}
         else:
+
+            config = Config.objects.get(fk_user=request.user)
+
             context = {
                 'user_dict': user_dict,
                 'fluxo_choices': FluxoChoice.choices,
                 'agrupado_por_choices': AgrupadoPorChoice.choices,
                 'fluxo_selected': fluxo,
                 'agrupado_por_selected': agrupado_por,
+                'jira_url':config.jira_url
             }
 
     return render(request, 'reports/report-up-down.html', context)
