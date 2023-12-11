@@ -6,8 +6,10 @@ from pathlib import os
 
 FLOW_UPSTREAM = 'upstream'
 FLOW_DOWNSTREAM = 'downstream'
+FLOW_PRIORITIZED = 'prioritized'
 GROUP_PO = 'po'
 GROUP_TEAM = 'team'
+GROUP_INITIATIVE = 'initiative'
 
 
 def report(request, flow, grouper, data_update = True):
@@ -37,16 +39,23 @@ def report(request, flow, grouper, data_update = True):
                        'to do', 'kick off', 'work in progress']
     status_downstream = ['in progress', 'ship', 'tweak']
 
-    status_others = ['done', 'reject', 'open', 'backlog', 'selected for development', 'planning', 
+    status_prioritized = ['selected for development', 'planning' ]
+
+    status_others = ['done', 'reject', 'open', 'backlog', 
                      'waiting for customer', 'resolved', 'waiting for support', 'pending']
 
     initiatives = []
     initiatives_up = []
     initiatives_down = []
+    initiatives_prioritized = []
+
     epics = []
     epics_up = []
     epics_down = []
+    epics_prioritized = []
+
     service_request_up = []
+    
 
     # Lê o resultado e separa as Iniciativas e Épicos e faz a classificação de é Upstream ou Downstream
     count = 0
@@ -61,6 +70,8 @@ def report(request, flow, grouper, data_update = True):
                 initiatives_up.append(issue)
             elif issue_status in status_downstream:
                 initiatives_down.append(issue)
+            elif issue_status in status_prioritized:
+                initiatives_prioritized.append(issue)
             elif issue_status not in status_others:
                 print('Status não mapeado: ', issue_status)
         elif issue_type == 'Epic':
@@ -69,6 +80,8 @@ def report(request, flow, grouper, data_update = True):
                 epics_up.append(issue)
             elif issue_status in status_downstream:
                 epics_down.append(issue)
+            elif issue_status in status_prioritized:
+                epics_prioritized.append(issue)
             elif issue_status not in status_others:
                 print('Status não mapeado: ', issue_status)
         else:
@@ -88,9 +101,13 @@ def report(request, flow, grouper, data_update = True):
             initiatives = initiatives_up
             epics = epics_up
             service_request = service_request_up
-        else:
+        elif flow == FLOW_DOWNSTREAM:
             initiatives = initiatives_down
             epics = epics_down
+            service_request = None
+        else:
+            initiatives = initiatives_prioritized
+            epics = epics_prioritized
             service_request = None
 
         data_dict = report_builder(initiatives, epics, grouper, service_request)
@@ -107,7 +124,7 @@ def report(request, flow, grouper, data_update = True):
 def report_builder(initiatives, epics, group, service_request=None):
     data_dict = {}
     
-    # separa os épicos em upstream por team e pega as Iniciativas Pai
+    # separa os épicos em upstream por agrupador e pega as Iniciativas Pai
     # user_dict = {agrupador:[{keyIni:int, fieldsIni:{}, epics:[]}]}
     for epic in epics:
         group_by = 'Não Informado'
@@ -115,11 +132,13 @@ def report_builder(initiatives, epics, group, service_request=None):
         if group == GROUP_TEAM:    
             if epic['fields']['customfield_10001'] is not None:
                 group_by = epic['fields']['customfield_10001']['name']
-        else:
+        elif group == GROUP_PO:
             if epic['fields']['assignee'] is not None:
                 group_by = epic['fields']['assignee']['displayName']
+        else:
+            group_by = epic['fields']['parent']['key']
 
- 
+            
         if group_by in data_dict:
             encontraId = False
             for disct in data_dict[group_by]:
@@ -158,9 +177,12 @@ def report_builder(initiatives, epics, group, service_request=None):
         if group == GROUP_TEAM:    
             if initiative['fields']['customfield_10001'] is not None:
                 group_by = initiative['fields']['customfield_10001']['name']
-        else:
+        elif group == GROUP_PO:
             if initiative['fields']['assignee'] is not None:
                 group_by = initiative['fields']['assignee']['displayName']
+        else:
+            group_by = initiative['key']
+
         
         if group_by in data_dict:
             encontraId = False
