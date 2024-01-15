@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 from users.models import Config
 from pathlib import os
 from cryptography.fernet import InvalidToken
-from reports import main
+from reports.main import encrypt_or_decrypt
 
 
 #from django.contrib.auth.models import User
@@ -77,7 +77,7 @@ def register(request):
                     
                     #change the settings
                     config.fk_user = user
-                    config.token = main.encrypt_or_decrypt(formUser.cleaned_data['token'])
+                    config.token = encrypt_or_decrypt(formUser.cleaned_data['token'])
                     config.jira_url = formUser.cleaned_data['jira_url']
                     config.save()
 
@@ -91,7 +91,7 @@ def register(request):
 
 
         try:
-            token = main.encrypt_or_decrypt(config.token, False)
+            token = encrypt_or_decrypt(config.token, False)
         except InvalidToken as error:
             messages.error(request, f"Erro no token: Por favor, atualizar com um novo token! {error}")
             token = ""
