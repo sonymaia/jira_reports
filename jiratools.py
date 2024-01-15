@@ -4,7 +4,7 @@ from pathlib import os
 import urllib3
 from users.models import Config
 from django.contrib.auth import get_user
-from reports.main import encrypt_or_decrypt
+from crypto import encrypt_or_decrypt
 from cryptography.fernet import InvalidToken
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)

@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 from users.models import Config
 from pathlib import os
 from cryptography.fernet import InvalidToken
-from reports.main import encrypt_or_decrypt
+from crypto import encrypt_or_decrypt
 
 
 #from django.contrib.auth.models import User
