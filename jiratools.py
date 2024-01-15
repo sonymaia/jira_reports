@@ -20,7 +20,6 @@ class JiraTools(Jira):
         print(user.username)
 
         # get the token
-        # get the token
         try:
             config = Config.objects.get(fk_user=user)
             self.token = main.encrypt_or_decrypt(config.token, False)
