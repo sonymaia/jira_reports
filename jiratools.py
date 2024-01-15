@@ -4,6 +4,8 @@ from pathlib import os
 import urllib3
 from users.models import Config
 from django.contrib.auth import get_user
+from reports import main
+from cryptography.fernet import InvalidToken
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -18,11 +20,18 @@ class JiraTools(Jira):
         print(user.username)
 
         # get the token
+        # get the token
         try:
             config = Config.objects.get(fk_user=user)
-            self.token = config.token
-        except Config.DoesNotExist:
+            self.token = main.encrypt_or_decrypt(config.token, False)
+        except Config.DoesNotExist as config_error:
+            # Tratar exceção Config.DoesNotExist
             self.token = ""
+            # Alguma lógica adicional se necessário
+        except InvalidToken as invalid_token_error:
+            # Tratar exceção InvalidToken
+            self.token = ""
+            # Alguma lógica adicional se necessário
 
         self.jira_url = config.jira_url
         self.email = user.email

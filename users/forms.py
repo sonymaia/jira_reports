@@ -79,7 +79,7 @@ class RegisterForms(forms.Form):
         label='Token',
         required=False,
         max_length=1000,
-        widget=forms.TextInput(
+        widget=forms.PasswordInput(
             attrs={
                 'class': 'form-control',
             }

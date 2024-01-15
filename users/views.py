@@ -7,6 +7,10 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from users.models import Config
+from pathlib import os
+from cryptography.fernet import InvalidToken
+from reports import main
+
 
 #from django.contrib.auth.models import User
 
@@ -73,7 +77,7 @@ def register(request):
                     
                     #change the settings
                     config.fk_user = user
-                    config.token = formUser.cleaned_data['token']
+                    config.token = main.encrypt_or_decrypt(formUser.cleaned_data['token'])
                     config.jira_url = formUser.cleaned_data['jira_url']
                     config.save()
 
@@ -82,18 +86,30 @@ def register(request):
                 
                 return render(request, 'users/register.html', {'formUser': formUser})
 
+        
         user = request.user
+
+
+        try:
+            token = main.encrypt_or_decrypt(config.token, False)
+        except InvalidToken as error:
+            messages.error(request, f"Erro no token: Por favor, atualizar com um novo token! {error}")
+            token = ""
+
         data_form = {
             'name': user.username,
             'email': user.email,
             'password': user.password,
             'jira_url': config.jira_url,
-            'token': config.token,
+            'token': token,
         }
         formUser = RegisterForms(initial=data_form)
         return render(request, 'users/register.html', {'formUser': formUser})
     else:
         # Redirecione para a página de login
         return redirect('login')
+    
+
+
 
 
